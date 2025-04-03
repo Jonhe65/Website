@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cute Login & Quiz</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        background: linear-gradient(
+          -45deg,
+          #ffb8c3d3,
+          #ffafc1,
+          #fcd6dc,
+          #ffb8c3
+        );
+      }
+      .container {
+        text-align: center;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 20px;
+        box-shadow: 0 5px 15px rgba(255, 105, 180, 0.2);
+        width: 350px;
+      }
+      .hidden {
+        display: none;
+      }
+      button {
+        padding: 10px;
+        margin: 5px;
+        border-radius: 10px;
+        cursor: pointer;
+        background-color: #ff69b4;
+        color: white;
+        border: none;
+      }
+      button:hover {
+        background-color: #ff4681;
+      }
+      #customInput {
+        display: none;
+        margin-top: 10px;
+        padding: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container" id="loginContainer">
+      <h2>:></h2>
+      <form id="loginForm">
+        <input
+          type="text"
+          id="username"
+          placeholder="Username"
+          required
+        /><br />
+        <input
+          type="password"
+          id="password"
+          placeholder="Password"
+          required
+        /><br />
+        <button type="submit">Login</button>
+      </form>
+    </div>
+
+    <div class="container hidden" id="loadingScreen">
+      <p>Chờ anh chút, anh đang lấy tài liệu chuẩn bị...</p>
+    </div>
+
+    <div class="container hidden" id="questionContainer">
+      <h2 id="questionText"></h2>
+      <button onclick="answerQuestion('Có')">Có</button>
+      <button onclick="answerQuestion('Không')">Không</button>
+      <button onclick="showCustomInput()">Tùy chọn khác</button>
+      <input type="text" id="customInput" placeholder="Nhập câu trả lời..." />
+      <button id="submitCustom" class="hidden" onclick="submitCustomAnswer()">
+        OK
+      </button>
+    </div>
+
+    <div class="container hidden" id="resultContainer">
+      <h2>Kết Quả</h2>
+      <p id="resultText"></p>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const loginForm = document.getElementById("loginForm");
+        const loginContainer = document.getElementById("loginContainer");
+        const loadingScreen = document.getElementById("loadingScreen");
+        const questionContainer = document.getElementById("questionContainer");
+        const questionText = document.getElementById("questionText");
+        const customInput = document.getElementById("customInput");
+        const submitCustom = document.getElementById("submitCustom");
+        const resultContainer = document.getElementById("resultContainer");
+        const resultText = document.getElementById("resultText");
+
+        const validUsername = "EMYEUANH";
+        const validPassword = "ForeverLove@";
+        const questions = [
+          "Em có thích anh không?",
+          "Anh có thể làm gì để em vui hơn?",
+          "Em có muốn đi chơi cùng anh không?",
+          "Em có muốn hẹn hò với anh không?",
+          "Anh có thể giúp em điều gì không?",
+        ];
+
+        let currentQuestion = 0;
+        let answers = [];
+        let score = 0;
+
+        loginForm.addEventListener("submit", function (event) {
+          event.preventDefault();
+          const user = document.getElementById("username").value;
+          const pass = document.getElementById("password").value;
+
+          if (user === validUsername && pass === validPassword) {
+            loginContainer.classList.add("hidden");
+            loadingScreen.classList.remove("hidden");
+            setTimeout(showQuiz, 3000);
+          } else {
+            alert("Sai tài khoản hoặc mật khẩu!");
+          }
+        });
+
+        function showQuiz() {
+          loadingScreen.classList.add("hidden");
+          questionContainer.classList.remove("hidden");
+          showQuestion();
+        }
+
+        function showQuestion() {
+          if (currentQuestion < questions.length) {
+            questionText.textContent = questions[currentQuestion];
+            customInput.value = "";
+            customInput.style.display = "none";
+            submitCustom.classList.add("hidden");
+          } else {
+            showResult();
+          }
+        }
+
+        window.answerQuestion = function (choice) {
+          answers.push(choice);
+          score += choice === "Có" ? 10 : choice === "Không" ? -5 : 5;
+          currentQuestion++;
+          setTimeout(showQuestion, 1500);
+        };
+
+        window.showCustomInput = function () {
+          customInput.style.display = "inline-block";
+          submitCustom.classList.remove("hidden");
+          customInput.focus();
+        };
+
+        window.submitCustomAnswer = function () {
+          const input = customInput.value.trim();
+          if (input !== "") {
+            answers.push(input);
+            score += 5;
+            currentQuestion++;
+            showQuestion();
+          } else {
+            alert("Vui lòng nhập câu trả lời.");
+          }
+        };
+
+        function showResult() {
+          questionContainer.classList.add("hidden");
+          resultContainer.classList.remove("hidden");
+
+          let resultHTML = "<h2>Kết quả:</h2>";
+          for (let i = 0; i < questions.length; i++) {
+            resultHTML += `<b>${questions[i]}</b>: ${answers[i]}<br>`;
+          }
+          resultHTML += `<p>Tổng điểm của em: ${score}</p>`;
+          resultText.innerHTML = resultHTML;
+        }
+      });
+    </script>
+  </body>
+</html>
